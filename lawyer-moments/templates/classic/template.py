@@ -28,6 +28,8 @@ def _build_prompt(case, lawyer_name, license_number, has_portrait):
         "Bottom right: glowing gold square frame containing a professional Asian lawyer portrait, "
         "half-body, in business attire, smiling confidently."
     )
+    law_text = case.get('law') or case.get('answer', '')
+    quote_text = case.get('quote') or case.get('comment', '')
     return (
         f"Generate a professional legal WeChat Moments poster image.\n\n"
         f"VISUAL STYLE:\n"
@@ -41,11 +43,11 @@ def _build_prompt(case, lawyer_name, license_number, has_portrait):
         f"2. Decorative gold horizontal divider line\n"
         f"3. Main content block (semi-transparent dark rounded rectangle, center):\n"
         f"   - TOP: Law article in white text:\n"
-        f"     '{case['law']}'\n"
+        f"     '{law_text}'\n"
         f"   - MIDDLE: Decorative gold separator line\n"
         f"   - BOTTOM:\n"
         f"     '{lawyer_name}点评：' in gold bold font\n"
-        f"     '{case['quote']}' in white font\n"
+        f"     '{quote_text}' in white font\n"
         f"4. Bottom area:\n"
         f"   - LEFT: Signature '{signature}' in gold bold serif\n"
         f"   - {portrait_instruction}\n"
@@ -60,6 +62,7 @@ def generate_poster(case, config, output_path) -> bool:
     portrait_part = config.get("portrait_part")
     lawyer_name = config["lawyer_name"]
     license_number = config.get("license_number", "")
+    preferred_model = config.get("preferred_model")
 
     prompt = _build_prompt(case, lawyer_name, license_number, portrait_part is not None)
 
@@ -67,7 +70,10 @@ def generate_poster(case, config, output_path) -> bool:
     if portrait_part:
         contents.append(portrait_part)
 
-    for model in IMAGE_MODELS:
+    models = [preferred_model] + IMAGE_MODELS if preferred_model else IMAGE_MODELS
+    models = list(dict.fromkeys(models))
+
+    for model in models:
         try:
             print(f"  尝试模型: {model}...")
             response = client.models.generate_content(

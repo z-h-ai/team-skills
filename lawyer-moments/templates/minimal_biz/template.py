@@ -25,8 +25,7 @@ def _build_prompt(case, lawyer_name, license_number, has_portrait):
 
     question = case.get("question", "")
     answer = case.get("answer", case.get("law", ""))
-    if len(answer) > 200:
-        answer = answer[:197] + "……"
+    # 不再截断，完整展示全部内容
     law_refs = case.get("law_refs", "")
     comment = case.get("comment", case.get("quote", ""))
 
@@ -45,7 +44,9 @@ def _build_prompt(case, lawyer_name, license_number, has_portrait):
         f"with a blue color overlay tint. The landscape creates a premium, aspirational atmosphere.\n"
         f"- Background: LOWER 60% — solid white or very light gray (#f5f5f7) clean area for text content.\n"
         f"- The transition between photo and white area uses a clean diagonal cut or subtle gradient blend.\n"
-        f"- Aspect ratio: 3:4 portrait (900x1200px) for WeChat Moments.\n\n"
+        f"- Aspect ratio: DO NOT use fixed 3:4. Use 900px width, and let the height grow to fit ALL content. "
+        f"If content is long, make the image taller (e.g. 900x1600, 900x1800, or even 900x2000). "
+        f"ALL text must be fully visible, never truncated or cut off.\n\n"
         f"LAYOUT (top to bottom):\n"
         f"1. TOP BANNER (on the landscape photo, upper-left):\n"
         f"   - A small blue geometric logo/icon (abstract scales of justice or diamond shape)\n"
@@ -85,6 +86,7 @@ def generate_poster(case, config, output_path) -> bool:
     portrait_part = config.get("portrait_part")
     lawyer_name = config["lawyer_name"]
     license_number = config.get("license_number", "")
+    preferred_model = config.get("preferred_model")
 
     prompt = _build_prompt(case, lawyer_name, license_number, portrait_part is not None)
 
@@ -92,7 +94,11 @@ def generate_poster(case, config, output_path) -> bool:
     if portrait_part:
         contents.append(portrait_part)
 
-    for model in IMAGE_MODELS:
+    # 如果指定了首选模型，优先使用
+    models = [preferred_model] + IMAGE_MODELS if preferred_model else IMAGE_MODELS
+    models = list(dict.fromkeys(models))  # 去重
+
+    for model in models:
         try:
             print(f"  尝试模型: {model}...")
             response = client.models.generate_content(

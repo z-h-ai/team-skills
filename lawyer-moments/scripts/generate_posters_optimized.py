@@ -185,12 +185,3 @@ with ThreadPoolExecutor(max_workers=3) as executor:
 
 success_count = sum(1 for _, success in results if success)
 print(f"\n完成！成功 {success_count}/3 张，保存在: {OUTPUT_DIR}")
-
-# 自动发送到飞书
-if success_count > 0:
-    print("\n发送到飞书...")
-    for i in range(1, success_count + 1):
-        img_path = OUTPUT_DIR / f"poster_{i:02d}.png"
-        if img_path.exists():
-            # 输出特殊标记，让 Agent 识别并发送
-            print(f"SEND_TO_FEISHU:{img_path}")

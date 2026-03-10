@@ -24,9 +24,9 @@ COLOR_CYAN = (0, 212, 255)
 COLOR_GOLD = (201, 168, 76)
 COLOR_LIGHT_GRAY = (200, 200, 210)
 
-# 字体路径（macOS）
-FONT_BOLD = "/System/Library/Fonts/STHeiti Medium.ttc"
-FONT_REGULAR = "/System/Library/Fonts/Hiragino Sans GB.ttc"
+# 字体路径（Linux）
+FONT_BOLD = "/usr/share/fonts/google-noto-cjk/NotoSansCJK-Bold.ttc"
+FONT_REGULAR = "/usr/share/fonts/google-noto-cjk/NotoSansCJK-Regular.ttc"
 
 _used_backgrounds = []
 
