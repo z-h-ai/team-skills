@@ -41,7 +41,8 @@ cfg = parse_persona(PERSONA_PATH)
 LAWYER_NAME = cfg.get("lawyer_name", "律师")
 LICENSE_NUMBER = cfg.get("license_number", "")
 TEMPLATE_NAME = cfg.get("template", "classic")
-GEMINI_API_KEY = cfg.get("gemini_api_key", os.environ.get("GEMINI_API_KEY", ""))
+# 优先从环境变量读取 API Key，避免硬编码
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", cfg.get("gemini_api_key", ""))
 PREFERRED_MODEL = cfg.get("preferred_model", "gemini-3-pro-image-preview")
 
 # 加载 persona
@@ -64,7 +65,7 @@ else:
     PERSONA = cfg.get("persona", "专业严谨")
 
 if not GEMINI_API_KEY:
-    print("错误：请在 inputs/persona.md 中填写 gemini_api_key")
+    print("错误：请设置环境变量 GEMINI_API_KEY 或在 inputs/persona.md 中填写 gemini_api_key")
     sys.exit(1)
 
 client = genai.Client(api_key=GEMINI_API_KEY)
